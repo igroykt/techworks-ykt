@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # techworks
 
 A new Flutter project.
@@ -14,3 +15,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# techworks-ykt
+Приложение для уведомления о технических работах
+>>>>>>> b691b5b74cf67634a92dac50d663ba0dc9b58895

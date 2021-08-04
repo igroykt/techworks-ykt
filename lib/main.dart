@@ -20,28 +20,83 @@ class _TWAppState extends State<TWApp> {
     super.initState();
   }
 
+  Future<Null> refreshList() async {
+    await Future.delayed(Duration(microseconds: REFRESH_DURATION));
+    setState(() {
+      Api.fetchData();
+    });
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
       home: Scaffold(
-        appBar: AppBar(title: Text(APP_TITLE)),
-        body: Container(
+        appBar: AppBar(
+          title: Text(APP_TITLE),
+          actions: [
+            IconButton(onPressed: refreshList, icon: Icon(Icons.settings)),
+          ],
+        ),
+        body: RefreshIndicator(
+          color: Colors.white,
           child: FutureBuilder<List<PostModel>>(
             future: Api.fetchData(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (snapshot.hasError) {
                 final err = snapshot.error.toString();
-                if (err == "HttpException: 403") {
-                  return Center(child: Text(MSG_NOT_AVAIL));
+                if (err == '403') {
+                  return RefreshIndicator(
+                      color: Colors.white,
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: MediaQuery.of(context).size.height,
+                          child: Text(MSG_NOT_AVAIL),
+                        ),
+                      ),
+                      onRefresh: refreshList);
+                } else if (err == '523') {
+                  return RefreshIndicator(
+                      color: Colors.white,
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: MediaQuery.of(context).size.height,
+                          child: Text(MSG_NO_INET),
+                        ),
+                      ),
+                      onRefresh: refreshList);
                 } else {
-                  return Center(child: Text(MSG_SERVER_ERR));
+                  return RefreshIndicator(
+                      color: Colors.white,
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: MediaQuery.of(context).size.height,
+                          child: Text(MSG_SERVER_ERR),
+                        ),
+                      ),
+                      onRefresh: refreshList);
                 }
               }
               if (snapshot.hasData) {
                 final posts = snapshot.data;
                 if (posts.length == 0) {
-                  return Center(child: Text(MSG_NODATA));
+                  return RefreshIndicator(
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: MediaQuery.of(context).size.height,
+                          child: Text(MSG_NODATA),
+                        ),
+                      ),
+                      onRefresh: refreshList);
                 }
                 return ListView.builder(
                   itemCount: posts.length,
@@ -75,6 +130,7 @@ class _TWAppState extends State<TWApp> {
               }
             },
           ),
+          onRefresh: refreshList,
         ),
       ),
     );

@@ -3,8 +3,14 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:techworks/config.dart';
-import 'package:techworks/localization/ru.dart';
 import 'package:techworks/model.dart';
+
+class Failure {
+  final String message;
+  Failure(this.message);
+  @override
+  String toString() => message;
+}
 
 class Api {
   static Future<List<PostModel>> fetchData() async {
@@ -15,14 +21,14 @@ class Api {
     });
     try {
       if (response.statusCode == 403) {
-        throw HttpException('403');
+        throw Failure('403');
+      } else if (response.statusCode != 200) {
+        throw Failure('500');
       }
       final body = json.decode(response.body);
       return body.map<PostModel>(PostModel.fromJson).toList();
     } on SocketException {
-      throw (MSG_NO_INET);
-    } on FormatException {
-      throw (MSG_BAD_RESP);
+      throw Failure('523');
     }
   }
 }
